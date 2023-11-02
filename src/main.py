@@ -54,11 +54,6 @@ LS_TOPICS = ["/galaxy/launch",
              "/RADON/log"
              ]
 
-#MQTT_HOST = "mcfe.itservices.manchester.ac.uk"
-#MQTT_PORT = 1883
-#MQTT_USER = "mcfe"
-#MQTT_PWD = "newspaper-orange-eaten-loud"
-
 
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883

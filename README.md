@@ -11,23 +11,10 @@ docker build -t mcfe-listener-image .
 
 # Run Docker image
 
-docker run -it --rm  mcfe-listener-image:latest /bin/bash
-
-
-
-# Install the listener
-
-cd /home/jerome/Work/MCFE/src/mcfe-listener
-python3 -m venv ~/ve/mcfe-listener
-source ~/ve/mcfe-listener/bin/activate
-pip install -r requirements.txt 
-
-
-
-# Run the listener
-
-cd /home/jerome/Work/MCFE/src/mcfe-listener ; source ~/ve/mcfe-listener/bin/activate
-python main.py
+docker run -it --rm \
+       mcfe-listener-image:latest \
+       python main.py --mqtt_host=<MUSER:MPWD>@<MHOST>:<MPORT> \
+                      --radon_host=<RUSER:RPWD>@<RHOST>:<RPORT> 
 
 
 
