@@ -41,7 +41,7 @@ import time
 from blessings import Terminal
 from client import RadonClient
 
-SESSION_PATH = os.path.join(os.path.expanduser("/.mcfe"), "session.pickle")
+SESSION_PATH = os.path.join(os.path.expanduser(".mcfe"), "session.pickle")
 
 VERSION = "0.1"
 
@@ -53,6 +53,7 @@ LS_TOPICS = ["/galaxy/launch",
              "/galaxy/info",
              "/RADON/log"
              ]
+
 
 
 MQTT_HOST = "127.0.0.1"
@@ -122,9 +123,10 @@ class MainApplication(object):
             print(log_name)
             
             payload_json = json.loads(msg.payload.decode('utf-8'))
+            payload_json['sys_topic'] = msg.topic
 
             data = {
-                "mime-type" : "text-plain",
+                "mime-type" : "text-json",
                 "value": json.dumps(payload_json),
                 "metadata" : payload_json
             }
