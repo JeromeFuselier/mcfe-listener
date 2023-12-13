@@ -121,8 +121,11 @@ class MainApplication(object):
             log_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + msg.topic.replace('/', '_')
             print(log_name)
             
-            payload_json = json.loads(msg.payload.decode('utf-8'))
-            payload_json['sys_topic'] = msg.topic
+            try:
+                payload_json = json.loads(msg.payload.decode('utf-8'))
+                payload_json['sys_topic'] = msg.topic
+            except json.decoder.JSONDecodeError:
+                payload_json = {"value": msg.payload.decode('utf-8')}
 
             data = {
                 "mimetype" : "text/json",
