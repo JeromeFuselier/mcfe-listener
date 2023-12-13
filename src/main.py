@@ -51,7 +51,8 @@ LS_TOPICS = ["/galaxy/launch",
              "/galaxy/get_workflows",
              "/galaxy/error",
              "/galaxy/info",
-             "/RADON/log"
+             "/test/",
+             "/RADON/"
              ]
 
 
@@ -95,8 +96,6 @@ class MainApplication(object):
         self.radon_user = radon_user
         self.radon_pwd = radon_pwd
         self.init_radon_connection()
-        
-        
 
 
     def on_connect(self, mqtt_client, userdata, flags, rc):
@@ -107,7 +106,7 @@ class MainApplication(object):
     def on_message(self, mqtt_client, userdata, msg):
         print("Message received on topic : " + msg.topic)
         client = self.get_client()
-        if (msg.topic in LS_TOPICS):
+        if is_useful_topic(msg.topic):
             # Create collection in Radon (with extra levels if needed)
             colls = [ el for el in msg.topic.split('/') if el]
             
@@ -126,7 +125,7 @@ class MainApplication(object):
             payload_json['sys_topic'] = msg.topic
 
             data = {
-                "mime-type" : "text-json",
+                "mimetype" : "text/json",
                 "value": json.dumps(payload_json),
                 "metadata" : payload_json
             }
@@ -226,6 +225,14 @@ class MainApplication(object):
         # Save existing session, so as to keep current dir etc.
         with open(self.session_path, "wb") as fh:
             pickle.dump(client, fh, pickle.HIGHEST_PROTOCOL)
+
+
+
+def is_useful_topic(topic):
+    for top in LS_TOPICS:
+        if topic.startswith(top):
+            return True
+    return False
 
 
 def parse_user(s):
