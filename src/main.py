@@ -83,14 +83,15 @@ class MainApplication(object):
         self.mqtt_user = mqtt_user
         self.mqtt_pwd = mqtt_pwd
         
-        self.mqtt_client = mqtt.Client()
+        self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, transport='websockets')
+        self.mqtt_client.ws_set_options(path="/ws")
         self.mqtt_client.on_connect = self.on_connect
         self.mqtt_client.on_message = self.on_message
         #client.on_disconnect = on_disconnect
         if (self.mqtt_user):
             self.mqtt_client.username_pw_set(self.mqtt_user, self.mqtt_pwd)
         
-        self.mqtt_client.connect(self.mqtt_host, self.mqtt_port, 60)
+        self.mqtt_client.connect(self.mqtt_host, self.mqtt_port, keepalive=5)
         
         self.radon_url = "http://{}:{}".format(radon_host, radon_port)
         self.radon_user = radon_user
@@ -98,7 +99,7 @@ class MainApplication(object):
         self.init_radon_connection()
 
 
-    def on_connect(self, mqtt_client, userdata, flags, rc):
+    def on_connect(self, mqtt_client, userdata, flags, rc, properties):
         print("Connected with result code " + str(rc))
         self.mqtt_client.subscribe("#")
 
@@ -115,30 +116,29 @@ class MainApplication(object):
                 cur = cur + c + '/'
                 res = client.mkdir(cur)
                 if not res.ok():
-                    self.print_error(res.msg())
-                    return
-            
+                    # 409 means conlflict so it already exists, not a real error
+                    if res.code() != 409:
+                        self.print_error(res.msg())
+                        return
+        
             log_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + msg.topic.replace('/', '_')
-            print(log_name)
-            
             try:
                 payload_json = json.loads(msg.payload.decode('utf-8'))
                 payload_json['sys_topic'] = msg.topic
             except json.decoder.JSONDecodeError:
                 payload_json = {"value": msg.payload.decode('utf-8')}
-
+        
             data = {
                 "mimetype" : "text/json",
                 "value": json.dumps(payload_json),
                 "metadata" : payload_json
             }
             res = client.put_cdmi(cur + log_name, json.dumps(data))
-            
+        
             if res.ok():
                 self.print_success(res.msg())
             else:
                 self.print_error(res.msg())
-            
 
 
     def create_client(self):

@@ -23,7 +23,7 @@ from urllib.request import pathname2url, url2pathname
 
 import requests
 
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 
 CDMI_CONTAINER = "application/cdmi-container"
 CDMI_OBJECT = "application/cdmi-object"
